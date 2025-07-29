@@ -72,4 +72,4 @@ for article in article_comment:
 
     if len(comments) > 0:
         summary = claude3_5(comments)
-
+        print(summary)
