@@ -71,7 +71,6 @@ for idx, article in enumerate(article_comment):
     # print(f'Comments2: {comments}')
     print(f'Length2: {len(comments)}')
 
-<<<<<<< HEAD
     batches = calculate_tokens(comments)
 
     print('Article: ', len(batches))
@@ -87,8 +86,8 @@ for idx, article in enumerate(article_comment):
 
     with open(f"outputs/article{idx+1}.txt", "w", encoding="utf-8") as f:
         f.write(llama(summaries))
-=======
+
     if len(comments) > 0:
         summary = claude3_5(comments)
         print(summary)
->>>>>>> 7f51f5304c6ddc4320b5e74db2c3d522a8bd019e
+
