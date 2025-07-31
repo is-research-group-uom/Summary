@@ -1,11 +1,7 @@
-import pandas as pd
-import re
-from collections import defaultdict
 from urllib.parse import urljoin
 from urllib.robotparser import RobotFileParser
 import requests
 from bs4 import BeautifulSoup
-import time
 
 def can_scrape(url):
     """Check robots.txt to see if scraping is allowed."""

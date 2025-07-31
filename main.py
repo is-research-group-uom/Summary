@@ -2,11 +2,12 @@ from ArticleExtraction import scrape_post_urls, scrape_post_content
 import pandas as pd
 import re
 from relevance.relevance_claude import relevance_claude
+from seperate_comments import calculate_tokens, get_tokens
 from llms.claude3_5 import claude3_5
 from llms.llama_30b import llama
 from llms.deepseek_r1 import deepseek
 
-url = "https://www.opengov.gr/digitalandbrief/?p=3131"  # Replace with the target URL
+url = "https://www.opengov.gr/yyka/?p=4433"  # Replace with the target URL
 post_contents = scrape_post_urls(url)
 if post_contents:
     for i, content in enumerate(post_contents, 1):
@@ -32,7 +33,7 @@ for i, content in enumerate(post_contents):
 print(f'Scrapted Content posts: {posts}')
 
 
-dataframe1 = pd.read_excel('data/egov_comments.xls')
+dataframe1 = pd.read_excel('data/yyka_comments_54.xls')
 
 comments_per_article = dataframe1.values.tolist()
 article_comment = []
@@ -54,22 +55,34 @@ for post in posts:
     article_comment.append(dict)
 
 index = 0
-for article in article_comment:
+for idx, article in enumerate(article_comment):
     index += 1
     article_with_title = article['Title'] + '\n' + article['Content']
 
     comments = article['Comments']
-    print(f'Comments1: {comments}')
+    # print(f'Comments1: {comments}')
     print(f'Length1: {len(comments)}')
-    for comment in comments:
+    for comment in comments[:30]:
         response = relevance_claude(article_with_title, comment)
 
         score = int(response)
         if score < 50:
             comments.remove(comment)
-    print(f'Comments2: {comments}')
+    # print(f'Comments2: {comments}')
     print(f'Length2: {len(comments)}')
 
-    if len(comments) > 0:
-        summary = claude3_5(comments)
+    batches = calculate_tokens(comments)
 
+    print('Article: ', len(batches))
+    for index, batch in enumerate(batches):
+        print(f"{index+1} Batch: {len(batch)}\n-------------\n")
+
+    if len(batches) > 0:
+        summaries = claude3_5(batches)
+        generated_tokens = get_tokens(summaries)
+        print(f"Tokens for summary: {generated_tokens}")
+
+        print(f"Summaries of {idx+1} article:\n{"\n----------------\n\n".join(summaries)}")
+
+    with open(f"outputs/article{idx+1}.txt", "w", encoding="utf-8") as f:
+        f.write(llama(summaries))
